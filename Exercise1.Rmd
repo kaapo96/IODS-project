@@ -983,8 +983,10 @@ Look at Figure 4.9 on page <https://argoshare.is.ed.ac.uk/healthyr_book/line-plo
 
 ```{r}
 gapdata %>% 
-  ggplot(aes(x = year, y = lifeExp, group = country)) +
-  geom_line()
+  ggplot(aes(x = year, y = lifeExp, group = country, colour = continent)) +
+  geom_line() + 
+  facet_wrap(~continent) + 
+  scale_colour_brewer(palette = "Paired")
 ```
 
 Try to transform the above graph following these instructions:
