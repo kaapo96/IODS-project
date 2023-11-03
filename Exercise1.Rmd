@@ -685,6 +685,7 @@ gbd_2rows %>%
 
 gbd_2rows %>% 
   select(starts_with("deaths"))
+
 ```
 
 ## 3.8 Reshaping data - long vs wide format
