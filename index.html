@@ -374,8 +374,6 @@ display: none;
 
 <div id="TOC">
 <ul>
-<li><a href="#introduction-to-open-data-science---course-project" id="toc-introduction-to-open-data-science---course-project">Introduction
-to Open Data Science - Course Project</a></li>
 <li><a href="#about-the-project" id="toc-about-the-project">About the
 project</a>
 <ul>
@@ -384,15 +382,11 @@ project</a>
 <li><a href="#github-repository" id="toc-github-repository">GitHub
 repository</a></li>
 </ul></li>
-<li><a href="#insert-chapter-2-title-here" id="toc-insert-chapter-2-title-here">Insert chapter 2 title
-here</a></li>
+<li><a href="#analysis-of-learning-data" id="toc-analysis-of-learning-data">Analysis of learning data</a></li>
 </ul>
 </div>
 
 <hr />
-<div id="introduction-to-open-data-science---course-project" class="section level1">
-<h1>Introduction to Open Data Science - Course Project</h1>
-</div>
 <div id="about-the-project" class="section level1">
 <h1>About the project</h1>
 <p><em>Write a short description about the course and add a link to your
@@ -430,8 +424,8 @@ takes a while to get used to a new language.</p>
 <hr />
 </div>
 </div>
-<div id="insert-chapter-2-title-here" class="section level1">
-<h1>Insert chapter 2 title here</h1>
+<div id="analysis-of-learning-data" class="section level1">
+<h1>Analysis of learning data</h1>
 <p><em>Describe the work you have done this week and summarize your
 learning.</em></p>
 <ul>
@@ -441,9 +435,46 @@ writing and reading R code as well as statistical methods.</li>
 <li>Assume the reader has no previous knowledge of your data or the more
 advanced methods you are using.</li>
 </ul>
-<pre class="r"><code>date()</code></pre>
-<pre><code>## [1] &quot;Fri Nov  3 15:19:49 2023&quot;</code></pre>
-<p>Here we go again…</p>
+<p>In this Analysis exercise, I…</p>
+<p>First, I load the data with the <code>read_csv</code> function from
+the <code>readr</code> library:</p>
+<pre class="r"><code>library(readr)
+learning2014 &lt;- read_csv(&quot;data/learning2014.csv&quot;)</code></pre>
+<pre><code>## Rows: 166 Columns: 7
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr (1): gender
+## dbl (6): age, attitude, deep, stra, surf, points
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<p>and then print out the structure</p>
+<pre class="r"><code>str(learning2014)</code></pre>
+<pre><code>## spc_tbl_ [166 × 7] (S3: spec_tbl_df/tbl_df/tbl/data.frame)
+##  $ gender  : chr [1:166] &quot;F&quot; &quot;M&quot; &quot;F&quot; &quot;M&quot; ...
+##  $ age     : num [1:166] 53 55 49 53 49 38 50 37 37 42 ...
+##  $ attitude: num [1:166] 3.7 3.1 2.5 3.5 3.7 3.8 3.5 2.9 3.8 2.1 ...
+##  $ deep    : num [1:166] 3.58 2.92 3.5 3.5 3.67 ...
+##  $ stra    : num [1:166] 3.38 2.75 3.62 3.12 3.62 ...
+##  $ surf    : num [1:166] 2.58 3.17 2.25 2.25 2.83 ...
+##  $ points  : num [1:166] 25 12 24 10 22 21 21 31 24 26 ...
+##  - attr(*, &quot;spec&quot;)=
+##   .. cols(
+##   ..   gender = col_character(),
+##   ..   age = col_double(),
+##   ..   attitude = col_double(),
+##   ..   deep = col_double(),
+##   ..   stra = col_double(),
+##   ..   surf = col_double(),
+##   ..   points = col_double()
+##   .. )
+##  - attr(*, &quot;problems&quot;)=&lt;externalptr&gt;</code></pre>
+<p>as well as the dimensions</p>
+<pre class="r"><code>dim(learning2014)</code></pre>
+<pre><code>## [1] 166   7</code></pre>
+<p>The data consists of 7 variables and 166 observations. The variables
+are: gender, age, attitude, deep, stra, surf, and points. The first two
+variables are self-explanatory and rest are defined as</p>
 <hr />
 <p>(more chapters to be added similarly as we proceed with the
 course!)</p>
