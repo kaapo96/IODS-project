@@ -1,13 +1,88 @@
-# Insert chapter 2 title here
+# Analysis of learning data
 
 *Describe the work you have done this week and summarize your learning.*
 
-- Describe your work and results clearly. 
-- Assume the reader has an introductory course level understanding of writing and reading R code as well as statistical methods.
-- Assume the reader has no previous knowledge of your data or the more advanced methods you are using.
+-   Describe your work and results clearly.
+-   Assume the reader has an introductory course level understanding of writing and reading R code as well as statistical methods.
+-   Assume the reader has no previous knowledge of your data or the more advanced methods you are using.
+
+In this Analysis exercise, I...
+
+## Loading data
+
+First, I load the data with the `read_csv` function from the `readr` library and print its structure and dimensions:
 
 ```{r}
-date()
+# load the readr library
+library(readr)
+
+# load the data file
+learning2014 <- read_csv("data/learning2014.csv")
+
+# print the structure
+str(learning2014)
+
+# print the dimensions
+dim(learning2014)
 ```
 
-Here we go again...
+The data consists of 7 variables and 166 observations. The variables are: `gender`, `age`, `attitude`, `deep`, `stra`, `surf`, and `points`. The first two variables are self-explanatory and rest are defined as
+
+- `attitude`: Attitude towards statistics on a scale from 1 to 5. Obtained as a mean of answers to ten questions.
+- `deep`: Mean of answers to twelve questions related to deep level learning, in particular seeking meaning, relating ideas, and using evidence. Scale: 1-5.
+- `surf`: Mean of answers to twelve questions related to surface level learning, specifically the lack of purpose, unrelated memorizing, and syllabus-boundedness. Scale: 1-5.
+- `stra`: Mean of answers to eight questions about how strategic the approach of the student is, assessing organization and time-management. Scale: 1-5.
+- `points`: Points obtained from the course exam.
+
+## Visualizing data
+
+Next, I show a graphical overview and summary of the data
+
+```{r, message = FALSE}
+# access the GGally and ggplot2 libraries
+library(GGally)
+library(ggplot2)
+
+# create a plot matrix with ggpairs()
+p <- ggpairs(learning2014, mapping = aes(col = gender, alpha = 0.3), lower = list(combo = wrap("facethist", bins = 20)), upper = list(continuous = wrap("cor", size = 2.5)))
+
+# draw the plot
+p
+
+# print a summary
+summary(learning2014)
+```
+
+The dataset mostly includes young students with median age at 22. Also female participants have a clear majority over male ones. Between different variables, the strongest correlation is between `attitude` and `points` irrespective of gender, which indicates that a motivated student is likely to perform well in the course exam. On the other hand, the strongest anti-correlation is between `surf` and `deep`, suggesting that the two attributes are exclusive on some level. This anti-correlation is much higher among males than females, which I can't explain.
+
+## Fitting a linear regression model
+
+Next, I fit a linear regression model, where `points` is the target variable and `attitude`, `stra`, and `surf` are the explanatory variables. These three variables are chosen as explanatory since they have the highest absolute correlation with the target variable. Fitting the model and printing out the summary gives
+
+```{r}
+# create a regression model with multiple explanatory variables
+my_model <- lm(points ~ attitude + stra + surf, data = learning2014)
+
+# print out a summary of the model
+summary(my_model)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
