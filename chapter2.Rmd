@@ -68,6 +68,58 @@ summary(my_model)
 
 ```
 
+According to the regression model, only one of the three variables, namely `attitude`, has a statistically significant relationship with the target variable `points`. Its P-value, a particular statistical test measuring the accuracy of the fitted model parameters, is remarkably low, meaning a high significance. The P-values of the other two variables are high, indicating that there is barely any statistical significance in their relationship to `points`.
+
+By removing the insignificant variables from the regression model, I perform the fitting with only one explanatory variable `attitude`:
+
+```{r}
+# create a regression model with one explanatory variable
+my_model2 <- lm(points ~ attitude, data = learning2014)
+
+# print out a summary of the model
+summary(my_model2)
+
+```
+
+This time, the fit is even better with lower P-value. Seems like `attitude` affects `points` with a high statistical significance. On average, for each unit `attitude`, `points` increases by 3.5255 with a standard error of 0.5674. For vanishing `attitude` (by extrapolating it to 0), the expected `points` is 11.6372 with a standard error of 1.8303.
+
+To visualize the linear regression model, I draw a plot:
+
+```{r, message=FALSE}
+# Access the gglot2 library
+library(ggplot2)
+
+# initialize plot with data and aesthetic mapping
+p2 <- ggplot(learning2014, aes(x = attitude, y = points))
+
+# define the visualization type (points)
+p2 <- p2 + geom_point()
+
+# plot the linear regression model
+p2 <- p2 + geom_smooth(method='lm', color='turquoise4')
+
+# change theme
+p2 <- p2 + theme_minimal()
+
+# add title
+p2 <- p2 + labs(title="Linear model of points vs attitude")
+
+# adjust title
+p2 <- p2 + theme(plot.title = element_text(hjust=0.5, size=16, face='bold')) 
+
+# draw the plot
+p2
+
+```
+
+
+## Interpretation of the fitted model
+
+The multiple R-squared, which in this case with a single explanatory variable is simply the square of the correlation coefficient between `attitude` and `points`, is 0.1906, so that less than 20% of the variation in `points` is explained by the variation in `attitude`.
+
+## Diagnostic plots
+
+
 
 
 
