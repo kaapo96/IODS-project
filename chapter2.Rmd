@@ -121,7 +121,12 @@ The multiple R-squared, which in this case with a single explanatory variable is
 
 
 
+```{r}
+# draw diagnostic plots using the plot() function. Choose the plots 1, 2 and 5
+par(mfrow = c(2,2))
+plot(my_model2, which = c(1,2,5))
 
+```
 
 
 
