@@ -1,8 +1,6 @@
 
 # About the project (Week 1)
 
-*Write a short description about the course and add a link to your GitHub repository here. This is an R Markdown (.Rmd) file so you should use R Markdown syntax.*
-
 ## Motivation and objectives
 
 I enrolled in the Introduction to Open Data Science to learn the basics of data science and using tools such as R and Git. Also five credits to the Transferable Skills provided some motivation since I need them to complete my studies. I found a link to the course page from an email that specified all the courses compatible with Transferable Skills. 
