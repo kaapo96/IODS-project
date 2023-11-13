@@ -1,12 +1,6 @@
 # Analysis of learning data (Week 2)
 
-*Describe the work you have done this week and summarize your learning.*
-
--   Describe your work and results clearly.
--   Assume the reader has an introductory course level understanding of writing and reading R code as well as statistical methods.
--   Assume the reader has no previous knowledge of your data or the more advanced methods you are using.
-
-In this Analysis exercise, I..
+In this Analysis exercise, I analyze the data obtained from a survey studying the influence of different learning methods and personal attitudes to the performance in a course exam on a statistics course lectured in 2014.
 
 ## Loading data
 
@@ -28,11 +22,11 @@ dim(learning2014)
 
 The data consists of 7 variables and 166 observations. The variables are: `gender`, `age`, `attitude`, `deep`, `stra`, `surf`, and `points`. The first two variables are self-explanatory and rest are defined as
 
-- `attitude`: Attitude towards statistics on a scale from 1 to 5. Obtained as a mean of answers to ten questions.
-- `deep`: Mean of answers to twelve questions related to deep level learning, in particular seeking meaning, relating ideas, and using evidence. Scale: 1-5.
-- `surf`: Mean of answers to twelve questions related to surface level learning, specifically the lack of purpose, unrelated memorizing, and syllabus-boundedness. Scale: 1-5.
-- `stra`: Mean of answers to eight questions about how strategic the approach of the student is, assessing organization and time-management. Scale: 1-5.
-- `points`: Points obtained from the course exam.
+-   `attitude`: Attitude towards statistics on a scale from 1 to 5. Obtained as a mean of answers to ten questions.
+-   `deep`: Mean of answers to twelve questions related to deep level learning, in particular seeking meaning, relating ideas, and using evidence. Scale: 1-5.
+-   `surf`: Mean of answers to twelve questions related to surface level learning, specifically the lack of purpose, unrelated memorizing, and syllabus-boundedness. Scale: 1-5.
+-   `stra`: Mean of answers to eight questions about how strategic the approach of the student is, assessing organization and time-management. Scale: 1-5.
+-   `points`: Points obtained from the course exam.
 
 ## Visualizing data
 
@@ -81,8 +75,6 @@ summary(my_model2)
 
 ```
 
-This time, the fit is even better with lower P-value. Seems like `attitude` affects `points` with a high statistical significance. On average, for each unit `attitude`, `points` increases by 3.5255 with a standard error of 0.5674. For vanishing `attitude` (by extrapolating it to 0), the expected `points` is 11.6372 with a standard error of 1.8303.
-
 To visualize the linear regression model, I draw a plot:
 
 ```{r, message=FALSE}
@@ -112,21 +104,27 @@ p2
 
 ```
 
-
 ## Interpretation of the fitted model
 
-The multiple R-squared, which in this case with a single explanatory variable is simply the square of the correlation coefficient between `attitude` and `points`, is 0.1906, so that less than 20% of the variation in `points` is explained by the variation in `attitude`.
+By removing the insignificant variables from the model, I obtain a fit with an even lower P-value. Seems like `attitude` affects `points` with a high statistical significance. On average, for each unit `attitude`, `points` increases by 3.5255 with a standard error of 0.5674. For vanishing `attitude` (an extrapolation to 0), the expected `points` is 11.6372 with a standard error of 1.8303. The multiple R-squared, which in this case with a single explanatory variable is simply the square of the correlation coefficient between `attitude` and `points`, is 0.1906, indicating that about 19% of the variation in `points` is explained by the variation in `attitude`. From this I can conclude that `attitude` has a significant impact on `points` but still the majority of the variance in `points` is explained by other factors not included in the data set.
 
 ## Diagnostic plots
 
-
+Finally, I produce some diagnostic plots:
 
 ```{r}
 # draw diagnostic plots using the plot() function. Choose the plots 1, 2 and 5
-par(mfrow = c(2,2))
+par(mfrow = c(2,2), mai=c(0.8,0.8,0.2,0.2), cex=0.8, pty="m")
 plot(my_model2, which = c(1,2,5))
 
 ```
+
+From the plots I can interpret that
+
+-    *Residuals vs Fitted*: Residuals seems to be centered around the model with an approximately constant variance so the assumptions of linearity and constant variance hold.
+-    *Q-Q Residuals*: The circles on the quantile-quantile plot line up fairly well on the theoretical line meaning that the assumption of normally distributed model residuals holds. The plot essentially compares the distribution of residuals from the data (circles) with the normal distribution of the model residuals (dashed line).
+-    *Residuals vs Leverage*: All the data points fall inside the Cook's distance so there are not any influential points in the regression model. If there was an influential point, removing it from the data set would considerably change the coefficients of the model.
+
 
 
 
