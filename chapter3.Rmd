@@ -1,0 +1,16 @@
+# Analysis of alcohol consumption data (Week 3)
+
+In this Analysis exercise, ...
+
+## Loading data
+
+
+
+
+
+
+
+
+
+
+
