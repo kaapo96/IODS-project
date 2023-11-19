@@ -48,7 +48,9 @@ select(alc, all_of(c("high_use","activities","freetime","famrel","studytime"))) 
 
 ```
 
+It seems like almost third of the students are high users of alcohol. About half of them have extra-curricular activities, most of them have good family relations, and most study 2-5 hours a week. The `freetime` variable is not defined quantitatively, but most of the students consider to have intermediate amount of free time after school.
 
+Next, some cross tabulations might reveal some relationships between the variables,
 
 ```{r}
 # Cross tabulation of high alcohol use and activities
@@ -65,17 +67,35 @@ table(alc$high_use, alc$studytime)
 
 ```
 
+The same information presented graphically is perhaps easier to analyze,
 
 ```{r}
 
 # Plot high_use vs. activities
-ggplot(data = alc, aes(x = high_use)) + geom_bar() + facet_wrap("activities")
+ggplot(data = alc, aes(x = high_use)) + geom_bar() + facet_wrap("activities") + ggtitle("Extra-curricular activities")
+
+# Plot high_use vs. freetime
+ggplot(data = alc, aes(x = high_use)) + geom_bar() + facet_wrap("freetime") + ggtitle("Free time after school")
+
+# Plot high_use vs. famrel
+ggplot(data = alc, aes(x = high_use)) + geom_bar() + facet_wrap("famrel") + ggtitle("Quality of family relationships")
+
+# Plot high_use vs. studytime
+ggplot(data = alc, aes(x = high_use)) + geom_bar() + facet_wrap("studytime") + ggtitle("Weekly study time")
 
 
 ```
 
+In all of the four cases, the data seems to support my hypotheses at least by visually inspecting the distributions. Let's approach the analysis more systematically and try to further solidify the hypotheses by using logistic regression to find statistically significant relationships between alcohol consumption (target variable) and the four variables. 
 
+```{r}
 
+# find the model with glm()
+m <- glm(high_use ~ activities + freetime + famrel + studytime, data = alc, family = "binomial")
 
+# print out a summary of the model
+summary(m)
+
+```
 
 
