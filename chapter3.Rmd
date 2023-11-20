@@ -86,7 +86,7 @@ ggplot(data = alc, aes(x = high_use)) + geom_bar() + facet_wrap("studytime") + g
 
 ```
 
-In all of the four cases, the data seems to support my hypotheses at least by visually inspecting the distributions. Let's approach the analysis more systematically and try to further solidify the hypotheses by using logistic regression to find statistically significant relationships between alcohol consumption (target variable) and the four variables. 
+In all of the four cases, the data seems to support my hypotheses at least by visually inspecting the distributions. Let's approach the analysis more systematically and try to further solidify the hypotheses by using logistic regression to find statistically significant relationships between alcohol consumption (target variable) and the four variables. Fitting a logistic regression model to the data yields
 
 ```{r}
 
@@ -97,5 +97,33 @@ m <- glm(high_use ~ activities + freetime + famrel + studytime, data = alc, fami
 summary(m)
 
 ```
+
+
+
+```{r}
+
+# compute odds ratios (OR)
+OR <- coef(m) %>% exp
+
+# compute confidence intervals (CI)
+CI <- confint(m) %>% exp
+
+# print out the odds ratios with their confidence intervals
+cbind(OR, CI)
+
+```
+
+
+
+## Testing predictions
+
+
+
+
+
+
+
+
+
 
 
