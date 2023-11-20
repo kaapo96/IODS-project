@@ -86,7 +86,7 @@ ggplot(data = alc, aes(x = high_use)) + geom_bar() + facet_wrap("studytime") + g
 
 ```
 
-In all of the four cases, the data seems to support my hypotheses at least by visually inspecting the distributions. Let's approach the analysis more systematically and try to further solidify the hypotheses by using logistic regression to find statistically significant relationships between alcohol consumption (target variable) and the four chosen variables. Fitting a logistic regression model to the data yields
+In all of the four cases, the data seems to support my hypotheses at least by visually inspecting the distributions. Let's approach the analysis more systematically and try to further solidify the hypotheses by using logistic regression to find statistically significant relationships between alcohol consumption (target variable) and the four chosen variables (predictors). Fitting a logistic regression model to the data yields
 
 ```{r}
 
@@ -162,7 +162,54 @@ model_error
 
 Given the above results, it is not surprising that the error is very high. It is even worse than the error resulting by guessing that all of the students are low users of alcohol (as that's the most frequent case) which is 30%. The high error is explained by the large proportion of false negatives in the predictions.
 
-## Cross validation (bonus)
+## Cross-validation (bonus)
+
+Finally, I will perform a 10-fold cross-validation on the model. By defining the loss function `loss_func`, I can use the `cv.glm` function from `boot` library to perform the cross-validation,
+
+```{r}
+
+# define a loss function (average prediction error)
+loss_func <- function(class, prob) {
+  n_wrong <- abs(class - prob) > 0.5
+  mean(n_wrong)
+}
+
+# load boot library
+library(boot)
+
+# set seed for reproducibility
+set.seed(1234)
+
+# K-fold cross-validation
+cv <- cv.glm(data = alc, cost = loss_func, glmfit = m2, K = 10)
+
+# average number of wrong predictions in the cross validation
+cv$delta[1]
+
+```
+
+The resulting mean prediction error is 31%, i.e. the same as without the cross-validation. This large error reflects the fact that the model is incomplete. The test performance of this model is worse compared to the one introduced in the Exercise Set, but I manage to find a model that out-performs it. Namely, by considering the variables `sex`, `goout`, and `absences`, I obtain the model
+
+```{r}
+
+# fit the model
+m3 <- glm(high_use ~ sex + goout + absences, data = alc, family = "binomial")
+
+# print out summary
+summary(m3)
+
+# set seed for reproducibility
+set.seed(1234)
+
+# K-fold cross-validation
+cv.glm(data = alc, cost = loss_func, glmfit = m3, K = 10)$delta[1]
+
+```
+
+which has a prediction error of 21%.
+
+
+
 
 
 

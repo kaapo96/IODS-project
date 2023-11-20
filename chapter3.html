@@ -494,8 +494,8 @@ least by visually inspecting the distributions. Let’s approach the
 analysis more systematically and try to further solidify the hypotheses
 by using logistic regression to find statistically significant
 relationships between alcohol consumption (target variable) and the four
-chosen variables. Fitting a logistic regression model to the data
-yields</p>
+chosen variables (predictors). Fitting a logistic regression model to
+the data yields</p>
 <pre class="r"><code># find the model with glm()
 m &lt;- glm(high_use ~ activities + freetime + famrel + studytime, data = alc, family = &quot;binomial&quot;)
 
@@ -624,7 +624,69 @@ which is 30%. The high error is explained by the large proportion of
 false negatives in the predictions.</p>
 </div>
 <div id="cross-validation-bonus" class="section level2">
-<h2>Cross validation (bonus)</h2>
+<h2>Cross-validation (bonus)</h2>
+<p>Finally, I will perform a 10-fold cross-validation on the model. By
+defining the loss function <code>loss_func</code>, I can use the
+<code>cv.glm</code> function from <code>boot</code> library to perform
+the cross-validation,</p>
+<pre class="r"><code># define a loss function (average prediction error)
+loss_func &lt;- function(class, prob) {
+  n_wrong &lt;- abs(class - prob) &gt; 0.5
+  mean(n_wrong)
+}
+
+# load boot library
+library(boot)
+
+# set seed for reproducibility
+set.seed(1234)
+
+# K-fold cross-validation
+cv &lt;- cv.glm(data = alc, cost = loss_func, glmfit = m2, K = 10)
+
+# average number of wrong predictions in the cross validation
+cv$delta[1]</code></pre>
+<pre><code>## [1] 0.3081081</code></pre>
+<p>The resulting mean prediction error is 31%, i.e. the same as without
+the cross-validation. This large error reflects the fact that the model
+is incomplete. The test performance of this model is worse compared to
+the one introduced in the Exercise Set, but I manage to find a model
+that out-performs it. Namely, by considering the variables
+<code>sex</code>, <code>goout</code>, and <code>absences</code>, I
+obtain the model</p>
+<pre class="r"><code># fit the model
+m3 &lt;- glm(high_use ~ sex + goout + absences, data = alc, family = &quot;binomial&quot;)
+
+# print out summary
+summary(m3)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = high_use ~ sex + goout + absences, family = &quot;binomial&quot;, 
+##     data = alc)
+## 
+## Coefficients:
+##             Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept) -4.18142    0.48085  -8.696  &lt; 2e-16 ***
+## sexM         1.02223    0.25946   3.940 8.15e-05 ***
+## goout        0.72793    0.12057   6.038 1.56e-09 ***
+## absences     0.08478    0.02266   3.741 0.000183 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 452.04  on 369  degrees of freedom
+## Residual deviance: 374.10  on 366  degrees of freedom
+## AIC: 382.1
+## 
+## Number of Fisher Scoring iterations: 4</code></pre>
+<pre class="r"><code># set seed for reproducibility
+set.seed(1234)
+
+# K-fold cross-validation
+cv.glm(data = alc, cost = loss_func, glmfit = m3, K = 10)$delta[1]</code></pre>
+<pre><code>## [1] 0.2135135</code></pre>
+<p>which has a prediction error of 21%.</p>
 </div>
 </div>
 
