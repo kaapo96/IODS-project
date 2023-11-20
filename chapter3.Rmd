@@ -31,10 +31,10 @@ In this report, I will mostly focus on the last variable and its relationship wi
 
 Next, I will choose four interesting variables and hypothesize about their relationship with high/low alcohol consumption. The variables and hypotheses are:
 
-- `activities`: Extra-curricular activities (binary: yes or no). My guess is that students with extra-curricular activities have less time to consume alcohol.
-- `freetime`: Free time after school (numeric: from 1 - very low to 5 - very high). My prediction is that the amount of free time a student has correlates with the alcohol consumption.
-- `famrel`: Quality of family relationships (numeric: from 1 - very bad to 5 - excellent). I hypothesize that this variable has an anti-correlation with alcohol use: a high quality of family relationship promotes less drinking and vice versa.
-- `studytime`: Weekly study time (numeric: 1 - <2 hours, 2 - 2 to 5 hours, 3 - 5 to 10 hours, or 4 - >10 hours). For this one, I also assume an anti-correlation: students who study more are less likely to have time and/or motivation to go out and drink.
+- `activities`: Extra-curricular activities (binary: `yes` or `no`). My guess is that students with extra-curricular activities have less time to consume alcohol.
+- `freetime`: Free time after school (numeric: from `1` - very low to `5` - very high). My prediction is that the amount of free time a student has correlates with the alcohol consumption.
+- `famrel`: Quality of family relationships (numeric: from `1` - very bad to `5` - excellent). I hypothesize that this variable has an anti-correlation with alcohol use: a high quality of family relationship promotes less drinking and vice versa.
+- `studytime`: Weekly study time (numeric: `1` - <2 hours, `2` - 2 to 5 hours, `3` - 5 to 10 hours, or `4` - >10 hours). For this one, I also assume an anti-correlation: students who study more are less likely to have time and/or motivation to go out and drink.
 
 Let's study numerically and graphically the distributions of the chosen variables and see if the hypotheses hold. First, it is useful to check the distributions of each variable of interest:
 
@@ -86,7 +86,7 @@ ggplot(data = alc, aes(x = high_use)) + geom_bar() + facet_wrap("studytime") + g
 
 ```
 
-In all of the four cases, the data seems to support my hypotheses at least by visually inspecting the distributions. Let's approach the analysis more systematically and try to further solidify the hypotheses by using logistic regression to find statistically significant relationships between alcohol consumption (target variable) and the four variables. Fitting a logistic regression model to the data yields
+In all of the four cases, the data seems to support my hypotheses at least by visually inspecting the distributions. Let's approach the analysis more systematically and try to further solidify the hypotheses by using logistic regression to find statistically significant relationships between alcohol consumption (target variable) and the four chosen variables. Fitting a logistic regression model to the data yields
 
 ```{r}
 
@@ -98,7 +98,7 @@ summary(m)
 
 ```
 
-
+From the coefficients of the model, describing the logarithms of odds ratios, I can already observe the hypothesized (anti-)correlation pattern. In the case of `activities` (with reference class `no`), the error of the estimate is, however, very large resulting in insignificant relationship with high alcohol use. For the other three variables, the relationship is much stronger, especially with `studytime`. The P-values of the fitted model tell the same story. Let's study the coefficients in a bit more detail by computing the odds ratios (OR) and their 95% confidence intervals (CI). The former is obtained simply by exponentiating the above coefficients and the latter is given by the `confint` function,
 
 ```{r}
 
@@ -113,14 +113,56 @@ cbind(OR, CI)
 
 ```
 
+The odds ratios and their confidence intervals have a clear interpretation. For `activities`, the odds ratio for having high alcohol use when having extra-curricular activities (vs. not having activities) is 0.79 with a 95% CI of [0.49,1.26]. As this interval contains the value 1 (1 means equal odds for `high_use` in both values of `activities`), I can conclude that there is no evidence of an association between `activities` and `high_use`. For `freetime`, the interpretation is that when `freetime` is increased by 1 unit, the odds ratio for `high_use` becomes 1.47 with CI of [1.15, 1.89]. In this case, the interval does not contain 1 so we can safely say that there is a statistically meaningful correlation between `freetime` and `high_use`. The same conclusion can be drawn for `famrel` and `studytime`, where I observe significant anticorrelation. As already hinted by the coefficients of the model, the conclusion is that `activities` is an irrelevant variable when considering `high_use` and the three other variables have a significant impact on `high_use`.
 
 
 ## Testing predictions
 
+Using the three statistically significant variables `freetime`, `famrel`, and `studytime` for the target variable `high_use`, I can explore the predictive power of the model. Computing the probability of `high_use` given the three variables and obtaining the resulting predictions (>0.5 = `TRUE`) yields a cross tabulation
 
+```{r}
 
+# fit the model
+m2 <- glm(high_use ~ freetime + famrel + studytime, data = alc, family = "binomial")
 
+# predict() the probability of high_use
+probabilities <- predict(m2, type = "response")
 
+# add the predicted probabilities to 'alc'
+alc <- mutate(alc, probability = probabilities)
+
+# use the probabilities to make a prediction of high_use
+alc <- mutate(alc, prediction = probability > 0.5)
+
+# tabulate the target variable versus the predictions
+table(Actual = alc$high_use, Predicted = alc$prediction) %>% prop.table() %>% addmargins()
+
+```
+
+which can be plotted
+
+```{r}
+
+# plot of the cross tabulation
+ggplot(alc, aes(x = high_use, fill = as.factor(prediction))) + geom_bar(position = "dodge") + labs(fill = "Prediction")
+
+```
+
+As seen from the table and plot, the model is quite good for predicting the `FALSE` case: 66% of all cases are predicted correctly as `FALSE` (cf. the actual 70%). However, the `TRUE` case is poorly predicted due to false negatives, as majority of actual high users are classified as low users. Only 3% of all cases `TRUE` cases are predicted correctly as the actual percentage is 30%. The proportion of false negatives is 27% and false positives 4%. The model seems to have a strong bias towards low users of alcohol and this is probably due to not including some other more important variables to the model. With this clearly incomplete model, the training error (the proportion of inaccurately classified cases) is
+
+```{r}
+
+# training error
+model_error <- mean(alc$high_use != alc$prediction)
+
+# print error
+model_error
+
+```
+
+Given the above results, it is not surprising that the error is very high. It is even worse than the error resulting by guessing that all of the students are low users of alcohol (as that's the most frequent case) which is 30%. The high error is explained by the large proportion of false negatives in the predictions.
+
+## Cross validation (bonus)
 
 
 
