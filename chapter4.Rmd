@@ -2,5 +2,103 @@
 
 In this Analysis exercise, ...
 
+## Loading the data
+
+First, I load the Boston data set from the MASS package and explore its structure and dimensions,
+
+```{r}
+
+# access the MASS package
+library(MASS)
+
+# load the data
+data("Boston")
+
+# explore the dataset
+str(Boston)
+
+```
+
+There are 506 observations and 14 numeric variables that are related to housing in suburbs of Boston:
+
+- `crim`: per capita crime rate by town,
+- `zn`: proportion of residential land zoned for lots over 25,000 sq.ft.,
+- `indus`: proportion of non-retail business acres per town,
+- `chas`: Charles River dummy variable (= 1 if tract bounds river; 0 otherwise),
+- `nox`: nitrogen oxides concentration (parts per 10 million),
+- `rm`: average number of rooms per dwelling,
+- `age`: proportion of owner-occupied units built prior to 1940,
+- `dis`: weighted mean of distances to five Boston employment centres,
+- `rad`: index of accessibility to radial highways,
+- `tax`: full-value property-tax rate per $10,000,
+- `ptratio`: pupil-teacher ratio by town,
+- `black`: $1000(Bk−0.63)^2$ $Bk$ is the proportion of blacks by town,
+- `lstat`: lower status of the population (percent),
+- `medv`: median value of owner-occupied homes in $1000s.
+
+## Graphical overview of the data
+
+Next, I give a visual representation of the distributions of the different variables and correlations between them. Let's start by summarizing the variables,
+
+```{r}
+
+# print out the summary of the variables
+summary(Boston)
+
+```
+
+A more visual way to study the distributions of the variables is to draw density plots,
+
+```{r}
+
+# access the tidyverse libraries tidyr, dplyr, ggplot2
+library(tidyr); library(dplyr); library(ggplot2);
+
+# plot the distributions as densities
+Boston %>% gather %>% ggplot(aes(value)) + facet_wrap("key", scales = "free") + geom_density()
+
+```
+
+In the distribution plots, I can see that at least the distribution of `rm` is somewhat normally distributed, while the others are far from a normal distribution. Most of the distributions are positively skewed: `chas`, `crim`, `dis`, `lstat`, `medv`, `nox`, and `zn`. On the other hand, `age` and `black` are negatively skewed. Further, three distributions have double peaks: `indus`, `rad`, and `tax`.
+
+It is not surprising that the average number of rooms per dwelling, `rm`, is quite normally distributed since 
+
+Now that we know how the variables are distributed, let's consider the correlations between them and create a correlation matrix by using the function `cor` and rounding the resulting numbers to 2-decimal precision:
+
+```{r}
+
+# calculate the correlation matrix and round it
+cor_matrix <- cor(Boston) %>% round(2)
+
+# print the correlation matrix
+cor_matrix
+
+```
+
+To illustrate the correlations between the variables in a more visual manner, I plot the above matrix using the `corrplot` function from the `corrplot` library,
+
+```{r}
+
+# visualize the correlation matrix
+library(corrplot)
+corrplot(cor_matrix, method="circle", type="upper", cl.pos="b", tl.pos = "d", tl.cex=0.6)
+
+```
+
+As seen in the correlation plot, 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
