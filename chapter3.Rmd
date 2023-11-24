@@ -1,6 +1,6 @@
 # Analysis of alcohol consumption data (Week 3)
 
-In this Analysis exercise, ...
+In this Analysis exercise, I study an alcohol consumption data set by applying logistic regression.
 
 ## Loading data
 
