@@ -2,7 +2,7 @@
 
 In this Analysis exercise, I analyze the data obtained from a survey studying the influence of different learning methods and personal attitudes to the performance in a course exam on a statistics course lectured in 2014.
 
-## Loading data
+## Loading the data
 
 First, I load the data with the `read_csv` function from the `readr` library and print its structure and dimensions:
 

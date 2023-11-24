@@ -2,7 +2,7 @@
 
 In this Analysis exercise, I study an alcohol consumption data set by applying logistic regression.
 
-## Loading data
+## Loading the data
 
 I start by loading the alcohol consumption data set with the `read_csv` function from the `readr` library and print the name of its variables:
 
