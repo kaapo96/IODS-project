@@ -61,7 +61,7 @@ Boston %>% gather %>% ggplot(aes(value)) + facet_wrap("key", scales = "free") + 
 
 In the distribution plots, I can see that at least the distribution of `rm` is somewhat normally distributed, while the others are far from a normal distribution. Most of the distributions are positively skewed: `chas`, `crim`, `dis`, `lstat`, `medv`, `nox`, and `zn`. On the other hand, `age` and `black` are negatively skewed. Further, three distributions have double peaks: `indus`, `rad`, and `tax`.
 
-It is not surprising that the average number of rooms per dwelling, `rm`, is quite normally distributed since 
+
 
 Now that we know how the variables are distributed, let's consider the correlations between them and create a correlation matrix by using the function `cor` and rounding the resulting numbers to 2-decimal precision:
 
@@ -85,12 +85,79 @@ corrplot(cor_matrix, method="circle", type="upper", cl.pos="b", tl.pos = "d", tl
 
 ```
 
-As seen in the correlation plot, 
+As seen in the correlation plot, `rad` and `tax` have the strongest correlation, which indicates that properties that have a good access to radial highways have higher tax rates. Second highest correlation is between `indus` and `nox`, which makes sense since industry might produce nitrogen oxides. The strongest anti-correlation, however, is between `dis` and `nox` indicating that there are less nitrogen oxides at residences further away from the employment centers. The second highest anti-correlation is between `age` and `dis` meaning that residences near employment centers are typically older.
+
+## Creating train and test sets
+
+Next, I create train and test sets for studying the `crim` variable. First, I standardize the data set using the `scale` function which subtracts the column means from the corresponding columns and divides the difference with standard deviation, i.e.
+
+$$
+\text{scaled}(X) = \frac{X-\text{mean}(X)}{\text{sd}(X)}.
+$$
+
+Scaling the variables and printing out the summaries yields
+
+```{r}
+
+# center and standardize variables
+boston_scaled <- Boston %>% scale
+
+# summaries of the scaled variables
+boston_scaled %>% summary
+
+# class of the boston_scaled object
+class(boston_scaled)
+
+# change the object to data frame
+boston_scaled <- as.data.frame(boston_scaled)
+
+```
+
+To proceed, I create a categorical variable `crime` from the variable `crim` using the quantiles as the break points. Then I remove `crim` from the data set and add there the new categorical variable `crime`,
+
+```{r}
+
+# create a quantile vector of crim and print it
+bins <- quantile(boston_scaled$crim)
+bins
+
+# create a categorical variable 'crime'
+crime <- cut(boston_scaled$crim, breaks = bins, include.lowest = TRUE, label = c("low", "med_low", "med_high", "high"))
+
+# look at the table of the new factor crime
+table(crime)
+
+# remove original crim from the dataset
+boston_scaled <- dplyr::select(boston_scaled, -crim)
+
+# add the new categorical value to scaled data
+boston_scaled <- data.frame(boston_scaled, crime)
+
+```
 
 
 
+```{r}
 
+# number of rows in the Boston dataset 
+n <- nrow(boston_scaled)
 
+# choose randomly 80% of the rows
+ind <- sample(n,  size = n * 0.8)
+
+# create train set
+train <- boston_scaled[ind,]
+
+# create test set 
+test <- boston_scaled[-ind,]
+
+# save the correct classes from test data
+correct_classes <- test$crime
+
+# remove the crime variable from test data
+test <- dplyr::select(test, -crime)
+
+```
 
 
 
