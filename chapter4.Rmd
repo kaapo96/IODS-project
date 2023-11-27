@@ -1,6 +1,6 @@
 # Clustering and classification of Boston data set (Week 4)
 
-In this Analysis exercise, ...
+In this Analysis exercise, I study the Boston set from the MASS package mostly focusing on crime rates in suburbs of Boston.
 
 ## Loading the data
 
@@ -60,8 +60,6 @@ Boston %>% gather %>% ggplot(aes(value)) + facet_wrap("key", scales = "free") + 
 ```
 
 In the distribution plots, I can see that at least the distribution of `rm` is somewhat normally distributed, while the others are far from a normal distribution. Most of the distributions are positively skewed: `chas`, `crim`, `dis`, `lstat`, `medv`, `nox`, and `zn`. On the other hand, `age` and `black` are negatively skewed. Further, three distributions have double peaks: `indus`, `rad`, and `tax`.
-
-
 
 Now that we know how the variables are distributed, let's consider the correlations between them and create a correlation matrix by using the function `cor` and rounding the resulting numbers to 2-decimal precision:
 
@@ -135,12 +133,15 @@ boston_scaled <- data.frame(boston_scaled, crime)
 
 ```
 
-
+Finally, I divide the data set into train and test sets sot that 80% of the data belongs to the train set, 
 
 ```{r}
 
 # number of rows in the Boston dataset 
 n <- nrow(boston_scaled)
+
+# fix the seed for reproducibility
+set.seed(12321)
 
 # choose randomly 80% of the rows
 ind <- sample(n,  size = n * 0.8)
@@ -151,6 +152,53 @@ train <- boston_scaled[ind,]
 # create test set 
 test <- boston_scaled[-ind,]
 
+```
+
+## Fitting the LDA model
+
+Next, I fit a linear discriminant analysis (LDA) model to the train set using `crime` as the target variable and all the other variables as predictors. The model finds the (linear) combination of the variables that separate the four classes of `crime`. The result of the fit is
+
+```{r}
+
+# linear discriminant analysis
+lda.fit <- lda(crime ~ ., data = train)
+
+# print the lda.fit object
+lda.fit
+
+```
+
+The resulting LDA model can be plotted as a biplot by first creating a function for `lda.arrows` and then plotting `lda.fit` with the created arrows,
+
+```{r}
+
+# the function for lda biplot arrows
+lda.arrows <- function(x, myscale = 1, arrow_heads = 0.1, color = "red", tex = 0.75, choices = c(1,2)){
+  heads <- coef(x)
+  graphics::arrows(x0 = 0, y0 = 0, 
+         x1 = myscale * heads[,choices[1]], 
+         y1 = myscale * heads[,choices[2]], col=color, length = arrow_heads)
+  text(myscale * heads[,choices], labels = row.names(heads), 
+       cex = tex, col=color, pos=3)
+}
+
+# target classes as numeric
+classes <- as.numeric(train$crime)
+
+# plot the lda results (select both lines and execute them at the same time!)
+plot(lda.fit, dimen = 2, col = classes, pch = classes)
+lda.arrows(lda.fit, myscale = 2)
+
+```
+
+According to the biplot, `rad` plays a significant role when distinguishing the category `high` from the rest. One possible reason for this is that crimes are concentrated to some specific areas that are far from radial highways. Among the other three categories, `zn`, `nox`, and `medv` have a major impact to the division.
+
+## Predicting with the LDA model
+
+Now that I have the LDA model, I can use it to predict crime rates from the other variables. To do that, I first save and remove the correct crime categories from the test set,
+
+```{r}
+
 # save the correct classes from test data
 correct_classes <- test$crime
 
@@ -159,7 +207,80 @@ test <- dplyr::select(test, -crime)
 
 ```
 
+Now, I can use `lda.pred` to predict the categorical crime rates of the test set and cross-tabulate the predicted results with the correct crime rates that I just saved,
 
+```{r}
+
+# predict classes with test data
+lda.pred <- predict(lda.fit, newdata = test)
+
+# cross tabulate the results
+table(correct = correct_classes, predicted = lda.pred$class)
+
+```
+
+It seems like the LDA predicts the `high` category flawlessly but with the other three categories there are some mispredictions indicated by the nonzero off-diagonal components. However, the largest values are on the diagonal, which indicates that the model is performing somewhat well.
+
+## K-means clustering
+
+As a final task, I apply the K-means clustering algorithm to the Boston data set in order to group similar observations into clusters. The (Euclidean) distances between the observations are
+
+```{r}
+
+# reload Boston data set
+data("Boston")
+
+# center and standardize variables
+boston_scaled2 <- Boston %>% scale
+
+# euclidean distance matrix
+dist_eu <- dist(boston_scaled2)
+
+# look at the summary of the distances
+summary(dist_eu)
+
+```
+
+The K-means clustering can be obtained with the function `kmeans` which actually computes the distances automatically. To determine an optimal value for the number of clusters, I look at how the total of within cluster sum of squares (WCSS) behaves when the number of clusters changes. For the optimal number of clusters, the total WCSS drops radically as a function of the number of clusters. Computing the total WCSS and plotting the result as a function of the number of clusters yields
+
+```{r}
+
+# set seed for reproducibility
+set.seed(1334)
+
+# determine the maximum number of clusters
+k_max <- 10
+
+# calculate the total within sum of squares
+twcss <- sapply(1:k_max, function(k){kmeans(boston_scaled2, k)$tot.withinss})
+
+# visualize the results
+qplot(x = 1:k_max, y = twcss, geom = 'line')
+
+```
+
+From the plot I can see that the optimal number of clusters could be two in this case. Also seven could be an optimal value but I choose two since the drop is the steepest when coming from one to two. Using two clusters, the k-means clustering yields
+
+```{r}
+
+# k-means clustering
+km <- kmeans(boston_scaled2, centers = 2)
+
+```
+
+Now I can plot the result of the clustering using `pairs` and use different colors for the two clusters. I focus on five variables that are related to the crime rates according to the previous analysis: `crim`, `rad`, `nox`, `zn`, and `medv`,
+
+```{r}
+
+# change the object to data frame
+boston_scaled2 <- as.data.frame(boston_scaled2)
+
+# plot the Boston dataset with clusters
+pairs(boston_scaled2[c("crim", "rad", "nox", "zn", "medv")], col = km$cluster)
+
+```
+
+Looking at the plot, I observe that the clustering is visible in many pairs of variables. This is especially true with pairs including `crim` probably because the four other variables play a major role when classifying the crime rates as we saw in the previous analysis. 
 
 
 
