@@ -8,8 +8,33 @@ First, I load the human data set and explore its structure and dimensions,
 
 ```{r}
 
+# load libraries
+library(dplyr)
+library(readr)
 
+# load the data
+human <- read_csv("data/human.csv")
 
 ```
 
+## Inspecting the data
 
+```{r}
+
+# move the country names to rownames
+library(tibble)
+human <- column_to_rownames(human, "Country")
+
+# Access GGally
+library(GGally)
+
+# visualize the 'human_' variables
+ggpairs(human, progress = FALSE)
+
+# Access corrplot
+library(corrplot)
+
+# compute the correlation matrix and visualize it with corrplot
+cor(human) %>% corrplot()
+
+```
