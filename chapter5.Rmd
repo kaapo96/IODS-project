@@ -15,15 +15,47 @@ library(readr)
 # load the data
 human <- read_csv("data/human.csv")
 
+# print out structure and dimenstions
+str(human)
+
 ```
+
+The data combines several indicators from most countries in the world. The variables are
+
+- `Country`: Country name
+- `Edu2.FM`: Ratio of proportions of females and males with at least secondary education
+- `Labo.FM`: Ratio of proportions of females and males in the labour force
+- `Life.Exp`: Life expectancy at birth
+- `Edu.Exp`: Expected years of schooling
+- `GNI`: Gross National Income per capita
+- `Mat.Mor`: Maternal mortality ratio
+- `Ado.Birth`: Adolescent birth rate
+- `Parli.F`: Percetange of female representatives in parliament
+
 
 ## Inspecting the data
 
+Let's begin by inspecting the data set. First I am going to mode the country names to row names,
+
 ```{r}
 
-# move the country names to rownames
+# move the country names to row names
 library(tibble)
 human <- column_to_rownames(human, "Country")
+
+```
+
+and then print out the summaries of the variables,
+
+```{r}
+# print out summaries
+summary(human)
+
+```
+
+and finally draw some plots that visualize the distributions of the variables and correlations between them,
+
+```{r}
 
 # Access GGally
 library(GGally)
@@ -35,6 +67,86 @@ ggpairs(human, progress = FALSE)
 library(corrplot)
 
 # compute the correlation matrix and visualize it with corrplot
-cor(human) %>% corrplot()
+cor(human) %>% corrplot(method="circle", type="upper", cl.pos="b", tl.pos = "d", tl.cex=0.6)
 
 ```
+
+Most of the variables seem to be (almost) normally distributed. The strongest correlation is between `Edu.Exp` and `Life.Exp`, which makes sense: in countries where people live longer, they have more time to educate themselves. The second strongest correlation is between `Mat.Mor` and `Ado.Birth` suggesting that in countries where people give birth at young age, mothers have a higher risk to die when giving birth. This is probably related to the quality and availability of healthcare and birth control. The strongest anti-correlation is between `Life.Exp` and `Mat.Mor`, again most likely reflecting the quality of healthcare in a given country. I can also observe that `Labo.FM` and `Parli.F` have a quite weak connection to the other variables.
+
+## PCA with raw data
+
+Next, I perform a principal component analysis on the raw data set, print out the summary that shows the variability captured by the principal components, and then draw a biplot displaying the observations by the first two principal components (PC1 coordinate in x-axis, PC2 coordinate in y-axis), along with arrows representing the original variables,
+
+```{r fig.cap = "**Figure 1**: Biplot of PCA of the raw data set. The first principal component explains all the variance in the data, corresponding to the gross national income per capita of a given country."}
+
+# perform principal component analysis (with the SVD method)
+pca_human <- prcomp(human)
+
+# print out the summary of the pca
+s <- summary(pca_human)
+s
+
+# rounded percentanges of variance captured by each PC
+pca_pr <- round(100*s$importance[2, ], digits = 1)
+
+# create object pc_lab to be used as axis labels
+pc_lab <- paste0(names(pca_pr), " (", pca_pr, "%)")
+
+# draw a biplot
+biplot(pca_human, cex = c(0.8, 1), col = c("grey60", "darkblue"), xlab = pc_lab[1], ylab = pc_lab[2])
+
+```
+
+With the raw data, all the variance accumulates to one principal component. This might be related to the fact that the numerical values of `GNI` are much larger compared to those of the other variables. Standardizing the data set should fix this.
+
+## PCA with standardized data
+
+```{r fig.cap = "**Figure 2**: "}
+
+# standardize the variables
+human_std <- scale(human)
+
+# print out the summaries of the standardized variables
+summary(human_std)
+
+# perform principal component analysis (with the SVD method)
+pca_human_std <- prcomp(human_std)
+
+# print out the summary of the pca
+s_std <- summary(pca_human_std)
+s_std
+
+# rounded percentanges of variance captured by each PC
+pca_pr_std <- round(100*s_std$importance[2, ], digits = 1)
+
+# create object pc_lab to be used as axis labels
+pc_lab_std <- paste0(names(pca_pr_std), " (", pca_pr_std, "%)")
+
+# draw a biplot
+biplot(pca_human_std, cex = c(0.8, 1), col = c("grey60", "darkblue"), xlab = pc_lab_std[1], ylab = pc_lab_std[2])
+
+```
+
+## Interpreting the principal components
+
+
+
+
+## MCA on tea data
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
