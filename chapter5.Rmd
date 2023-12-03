@@ -1,0 +1,15 @@
+# Analysis of human data set (Week 5)
+
+In this Analysis exercise, ...
+
+## Loading the data
+
+First, I load the human data set and explore its structure and dimensions,
+
+```{r}
+
+
+
+```
+
+
