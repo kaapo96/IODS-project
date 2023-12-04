@@ -1,6 +1,6 @@
-# Analysis of human data set (Week 5)
+# Dimensionality reduction techniques (Week 5)
 
-In this Analysis exercise, ...
+In this Analysis exercise, I analyze two data sets with dimensionality reduction techniques. The first data set describes peoples' well being in different countries and the second one tea consumption.
 
 ## Loading the data
 
@@ -22,15 +22,15 @@ str(human)
 
 The data combines several indicators from most countries in the world. The variables are
 
-- `Country`: Country name
-- `Edu2.FM`: Ratio of proportions of females and males with at least secondary education
-- `Labo.FM`: Ratio of proportions of females and males in the labour force
-- `Life.Exp`: Life expectancy at birth
-- `Edu.Exp`: Expected years of schooling
-- `GNI`: Gross National Income per capita
-- `Mat.Mor`: Maternal mortality ratio
-- `Ado.Birth`: Adolescent birth rate
-- `Parli.F`: Percetange of female representatives in parliament
+- `Country`: Country name,
+- `Edu2.FM`: Ratio of proportions of females and males with at least secondary education,
+- `Labo.FM`: Ratio of proportions of females and males in the labour force,
+- `Life.Exp`: Life expectancy at birth,
+- `Edu.Exp`: Expected years of schooling,
+- `GNI`: Gross National Income per capita,
+- `Mat.Mor`: Maternal mortality ratio,
+- `Ado.Birth`: Adolescent birth rate,
+- `Parli.F`: Percetange of female representatives in parliament.
 
 
 ## Inspecting the data
@@ -75,7 +75,7 @@ Most of the variables seem to be (almost) normally distributed. The strongest co
 
 ## PCA with raw data
 
-Next, I perform a principal component analysis on the raw data set, print out the summary that shows the variability captured by the principal components, and then draw a biplot displaying the observations by the first two principal components (PC1 coordinate in x-axis, PC2 coordinate in y-axis), along with arrows representing the original variables,
+Next, I perform a principal component analysis on the raw data set using `prcomp`, print out the summary that shows the variability captured by the principal components, and then draw a biplot displaying the observations by the first two principal components (PC1 coordinate in x-axis, PC2 coordinate in y-axis), along with arrows representing the original variables,
 
 ```{r fig.cap = "**Figure 1**: Biplot of PCA of the raw data set. The first principal component explains all the variance in the data, corresponding to the gross national income per capita of a given country."}
 
@@ -93,7 +93,7 @@ pca_pr <- round(100*s$importance[2, ], digits = 1)
 pc_lab <- paste0(names(pca_pr), " (", pca_pr, "%)")
 
 # draw a biplot
-biplot(pca_human, cex = c(0.8, 1), col = c("grey60", "darkblue"), xlab = pc_lab[1], ylab = pc_lab[2])
+biplot(pca_human, cex = c(0.6, 0.8), col = c("grey60", "darkblue"), xlab = pc_lab[1], ylab = pc_lab[2])
 
 ```
 
@@ -101,7 +101,9 @@ With the raw data, all the variance accumulates to one principal component. This
 
 ## PCA with standardized data
 
-```{r fig.cap = "**Figure 2**: Biplot of PCA of the standardized data set. "}
+Let's standardize the data set and perform the PCA again,
+
+```{r fig.cap = "**Figure 2**: Biplot of PCA of the standardized data set. Maternal mortality rate and adolescent birth rate correlate with the first principal component and the quality of education, life expectancy, and gross national income per capita anti-correlate with it. The variables describing gender inequality are orthogonal to these and contribute to the second principal component meaning that gender inequality is an independent feature with respect to healthcare, education, and gross national income. The first PC explains over half of the variance in the data and the second one about 16%."}
 
 # standardize the variables
 human_std <- scale(human)
@@ -123,16 +125,25 @@ pca_pr_std <- round(100*s_std$importance[2, ], digits = 1)
 pc_lab_std <- paste0(names(pca_pr_std), " (", pca_pr_std, "%)")
 
 # draw a biplot
-biplot(pca_human_std, cex = c(0.8, 1), col = c("grey60", "darkblue"), xlab = pc_lab_std[1], ylab = pc_lab_std[2])
+biplot(pca_human_std, cex = c(0.6, 0.8), col = c("grey60", "darkblue"), xlab = pc_lab_std[1], ylab = pc_lab_std[2])
 
 ```
 
+Now that the data set is standardized and the numerical values of the variables are all similar, the PCA works much better compared to the one with raw data. Without standardizing, all the variance is explained by the first principal component to which the only contributor is the gross national income per capita, `GNI`, due to its large numerical values. The standardization shifts and rescales the variables so that on the second try I can see the correlations much clearer.
+
+
+
 ## Interpreting the principal components
 
+In Fig. 2, I plot the result of the principal component analysis of the human data set in terms of the two most significant principal components. In this case, the two principal component dimensions have a quite clear interpretation. The first one, responsible for over half of the variation in the data, is strongly related to the health-related features (`Life.Exp`, `Mat.Mor`, `Ado.Birth`) and the quality of education (`Edu.Exp`, `Edu2.FM`) as well as gross national income per capita (`GNI`), since the corresponding arrows are parallel to the first axis. It clearly describes the poorness of a country: if a given country has a large PC1, its GNI is low and its healthcare and education have a low quality. Here, the low quality of healthcare and poorness is reflected by a low life expectancy, a high maternal mortality rate, and a high adolescent birth rate. The low quality of education, on the other hand, is reflected by low expected years of schooling and a low female-to-male ratio in secondary education. It makes sense that these variables are related: poorer countries with lower GNI have less money to spend on healthcare, birth control, and education leading to lower quality of life. And vice versa, lower quality of life probably leads to low GNI.
 
+The second principal component, responsible of 16% of the variation in the data, describes gender inequality in labour force and parliament (`Labo.FM`, `Parli.F`), as the corresponding arrows align with the second axis. Higher (lower) PC2 can be interpreted as higher inequality in favor of females (males) in labour force and parliament. Also, not surprisingly, the female-to-male ratio in labour force and parliament are strongly correlated with each other.
 
+Already suggested by the correlation plot in the beginning, it seems that gender inequality is not connected to the poorness of a country since the arrows describing these two qualities in Fig. 2 are almost perpendicular to each other. I can't come up with a simple explanation why that's the case but it is still an interesting observation.
 
 ## MCA on tea data
+
+As the second data set, I analyze tea consumption containing categorical variables. The tool for this is the Multiple Correspondence Analysis (MCA), a multivariate statistical technique used for analyzing relationships in categorical data. To begin, I load the data set and print out its structure and dimensions,
 
 ```{r}
 
@@ -147,13 +158,16 @@ View(tea)
 
 ```
 
-- `Tea`: Type of tea
-- `How`: Something mixed with tea
-- `how`: Bagged tea or unpackaged tea or both
-- `sugar`: Sugar with tea
-- `where`: Place of purchase
-- `lunch`: Drank at lunch
+The data contains 300 observations of 36 variables collected with a questionnaire on tea consumption. In particular, the participants were asked how they drink tea (18 questions) the what are their product's perception (12 questions). In addition, some personal details were asked (4 questions). The number of variables is fairly high, and I want to focus only on some of them. I choose the following variables:
 
+- `Tea`: Type of tea,
+- `How`: Something mixed with tea,
+- `how`: Bagged tea or unpackaged tea or both,
+- `sugar`: Sugar with tea,
+- `where`: Place of purchase,
+- `lunch`: Drank at lunch.
+
+So, let's keep only the chosen variables in the data set and visualize their distributions,
 
 ```{r}
 
@@ -161,7 +175,7 @@ View(tea)
 keep_columns <- c("Tea", "How", "how", "sugar", "where", "lunch")
 
 # select the 'keep_columns' to create a new dataset
-tea <- select(tea, keep_columns)
+tea <- dplyr::select(tea, keep_columns)
 
 # visualize the dataset
 library(tidyr)
@@ -171,8 +185,7 @@ pivot_longer(tea, cols = everything()) %>%
 
 ```
 
-
-
+Next, I perform the MCA for the tea data using the `MCA` function from the `FactoMineR` library and print out the summary of the analysis,
 
 ```{r}
 
@@ -185,12 +198,31 @@ summary(mca)
 
 ```
 
+Finally, let's plot the result of the MCA as a biplot including only the different categories and hiding the individual observations (with `invisible=c("ind")`),
+
 ```{r}
 
 # visualize MCA
 plot(mca, invisible=c("ind"), graph.type = "classic", habillage = "quali")
 
 ```
+
+The axes in MCA biplot represent the principal components or dimensions and each axis captures a certain proportion of the total variability in the categorical data. In this case, I plot the two dimensions that have the largest contribution to the variance in the data (15% and 14%). The first dimension appears to describe the place of purchase and the type of the tea. Larger values mean that the tea has been purchased from a tea shop and the type is unpackaged and lower values correspond to chain stores as the buying place and tea bags as the type. This also indicates that tea shops sell more unpackaged tea and chain stores sell more tea bags.
+
+The interpretation of the second dimension is not so obvious. One possible interpretation is that it describes how picky or “serious" a tea consumer is: larger values correspond to less serious drinker that buys their tea from any shop (either chain store or tea shop) and might even drink it by mixing it with some other ingredient. On the other hand, lower values correspond to a serious tea consumer that buys their tea (preferably green) only from a proper tea shop.
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
