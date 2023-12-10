@@ -86,10 +86,10 @@ BPRS <- read.table("https://raw.githubusercontent.com/KimmoVehkalahti/MABS/maste
 names(BPRS)
 
 # Look at the structure of BPRS
-
+str(BPRS)
 
 # Print out summaries of the variables
-
+summary(BPRS)
 
 
 ```
@@ -161,7 +161,7 @@ BPRSL <-  pivot_longer(BPRS, cols = -c(treatment, subject),
 
 # Extract the week number
 BPRSL <-  BPRSL %>% 
-            mutate(week = as.integer(substr("change me!")))
+            mutate(week = as.integer(substr(weeks,5,5)))
 
 # Take a glimpse at the BPRSL data
 glimpse(BPRSL)
@@ -213,7 +213,7 @@ rm(BPRS)
 library(ggplot2)
 
 # Draw the plot
-ggplot(BPRSL, aes(x = "change me!", y = "change me too!", linetype = subject)) +
+ggplot(BPRSL, aes(x = week, y = bprs, linetype = subject)) +
   geom_line() +
   scale_linetype_manual(values = rep(1:10, times=4)) +
   facet_grid(. ~ treatment, labeller = label_both) +
@@ -272,8 +272,8 @@ library(dplyr)
 library(tidyr)
 # Standardise the variable bprs
 BPRSL <- BPRSL %>%
-  group_by("change me!") %>%
-  mutate(stdbprs = "change me!") %>%
+  group_by(week) %>%
+  mutate(stdbprs = (bprs - mean(bprs))/sd(bprs)) %>%
   ungroup()
 
 # Glimpse the data
@@ -346,7 +346,7 @@ library(tidyr)
 # Summary data with mean and standard error of bprs by treatment and week 
 BPRSS <- BPRSL %>%
   group_by(treatment, week) %>%
-  summarise( mean = "change me!", se = "change me!" ) %>%
+  summarise( mean = mean(bprs), se = sd(bprs)/sqrt(n) ) %>%
   ungroup()
 
 # Glimpse the data
@@ -359,7 +359,7 @@ ggplot(BPRSS, aes(x = week, y = mean, linetype = treatment, shape = treatment)) 
   scale_linetype_manual(values = c(1,2)) +
   geom_point(size=3) +
   scale_shape_manual(values = c(1,2)) +
-  #geom_errorbar(aes(ymin=mean-se, ymax=mean+se, linetype="1"), width=0.3) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se, linetype="1"), width=0.3) +
   theme(legend.position = c(0.8,0.8)) +
   scale_y_continuous(name = "mean(bprs) +/- se(bprs)")
 
@@ -434,7 +434,13 @@ ggplot(BPRSL8S, aes(x = treatment, y = mean)) +
   scale_y_continuous(name = "mean(bprs), weeks 1-8")
 
 # Create a new data by filtering the outlier and adjust the ggplot code the draw the plot again with the new data
-BPRSL8S1 <- "change me!"
+BPRSL8S1 <- BPRSL8S %>% filter(mean < 65)
+
+# Draw a boxplot of the mean versus treatment
+ggplot(BPRSL8S1, aes(x = treatment, y = mean)) +
+  geom_boxplot() +
+  stat_summary(fun = "mean", geom = "point", shape=23, size=4, fill = "white") +
+  scale_y_continuous(name = "mean(bprs), weeks 1-8")
 
 ```
 
@@ -516,10 +522,10 @@ BPRSL8S2 <- BPRSL8S %>%
   mutate(baseline = BPRS$week0)
 
 # Fit the linear model with the mean as the response 
-fit <- lm("Linear model formula here!", data = BPRSL8S2)
+fit <- lm(mean ~ baseline + treatment, data = BPRSL8S2)
 
 # Compute the analysis of variance table for the fitted model with anova()
-
+anova(fit)
 
 ```
 
@@ -568,9 +574,11 @@ RATS <- read.table("https://raw.githubusercontent.com/KimmoVehkalahti/MABS/maste
 
 library(dplyr)
 # Factor variables ID and Group
+RATS$ID <- factor(RATS$ID)
+RATS$Group <- factor(RATS$Group)
 
 # Glimpse the data
-
+glimpse(RATS)
 ```
 
 ## 6.9 Linear Mixed Effects Models
@@ -615,9 +623,9 @@ library(dplyr)
 library(tidyr)
 # Convert data to long form
 RATSL <- pivot_longer(RATS, cols = -c(ID, Group), 
-                      names_to = "change me!",
-                      values_to = "change me!") %>% 
-         mutate(Time = as.integer(substr("change me!"))) %>%
+                      names_to = "WD",
+                      values_to = "Weight") %>% 
+         mutate(Time = as.integer(substr(WD, 3, 4))) %>%
          arrange(Time)
 
 # Glimpse the data
@@ -680,12 +688,15 @@ of the previous line and add the new element on a new indented line.
 library(dplyr)
 library(tidyr)
 # Check the dimensions of the data
-
+dim(RATSL)
 
 # Plot the RATSL data
 library(ggplot2)
 ggplot(RATSL, aes(x = Time, y = Weight, group = ID)) +
-  geom_line()
+  geom_line(aes(linetype = Group)) +
+  scale_x_continuous(name = "Time (days)", breaks = seq(0, 60, 10)) +
+  scale_y_continuous(name = "Weight (grams)") +
+  theme(legend.position = "top")
 
 
 
@@ -739,10 +750,10 @@ Hints: - Use `lm()` with the formula `Weight ~ Time + Group` - Use
 # RATS and RATSL are available
 
 # create a regression model RATS_reg
-RATS_reg <- "Regression model here!"
+RATS_reg <-  lm(Weight ~ Time + Group, data = RATSL)
 
 # print out a summary of the model
-
+summary(RATS_reg)
 ```
 
 ## 6.12 The Random Intercept Model
@@ -801,7 +812,7 @@ library(lme4)
 RATS_ref <- lmer(Weight ~ Time + Group + (1 | ID), data = RATSL, REML = FALSE)
 
 # Print the summary of the model
-
+summary(RATS_ref)
 
 ```
 
@@ -853,7 +864,7 @@ library(lme4)
 RATS_ref1 <- lmer(Weight ~ Time + Group + (Time | ID), data = RATSL, REML = FALSE)
 
 # print a summary of the model
-
+summary(RATS_ref1)
 
 # perform an ANOVA test on the two models
 anova(RATS_ref1, RATS_ref)
@@ -911,10 +922,10 @@ the function `fitted()`. Supply it with the model `RATS_ref2` - Use
 
 # create a random intercept and random slope model with the interaction
 library(lme4)
-RATS_ref2 <- "Write the model here"
+RATS_ref2 <- lmer(Weight ~ Time + Group + Time * Group + (Time | ID), data = RATSL, REML = FALSE)
 
 # print a summary of the model
-
+summary(RATS_ref2)
 
 # perform an ANOVA test on the two models
 anova(RATS_ref2, RATS_ref1)
@@ -927,16 +938,16 @@ ggplot(RATSL, aes(x = Time, y = Weight, group = ID)) +
   theme(legend.position = "top")
 
 # Create a vector of the fitted values
-Fitted <- "change me!"
+Fitted <- fitted(RATS_ref2)
 
 library(dplyr)
 library(tidyr)
 # Create a new column fitted to RATSL
-
+RATSL <- RATSL %>% mutate(Fitted = Fitted)
 
 # draw the plot of RATSL with the Fitted values of weight
 library(ggplot2)
-ggplot(RATSL, aes(x = Time, y = "change me!", group = ID)) +
+ggplot(RATSL, aes(x = Time, y = Fitted, group = ID)) +
   geom_line(aes(linetype = Group)) +
   scale_x_continuous(name = "Time (days)", breaks = seq(0, 60, 20)) +
   scale_y_continuous(name = "Fitted weight (grams)") +
