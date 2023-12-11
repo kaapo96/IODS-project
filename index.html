@@ -435,6 +435,12 @@ principal components</a></li>
 <li><a href="#mca-on-tea-data" id="toc-mca-on-tea-data">MCA on tea
 data</a></li>
 </ul></li>
+<li><a href="#analysis-of-longitudinal-data-week-6" id="toc-analysis-of-longitudinal-data-week-6">Analysis of longitudinal
+data (Week 6)</a>
+<ul>
+<li><a href="#bprs-data" id="toc-bprs-data">BPRS data</a></li>
+<li><a href="#rats-data" id="toc-rats-data">RATS data</a></li>
+</ul></li>
 </ul>
 </div>
 
@@ -1963,8 +1969,84 @@ even drink it by mixing it with some other ingredient. On the other
 hand, lower values correspond to a serious tea consumer that buys their
 tea (preferably green) only from a proper tea shop.</p>
 <hr />
-<p>(more chapters to be added similarly as we proceed with the
-course!)</p>
+</div>
+</div>
+<div id="analysis-of-longitudinal-data-week-6" class="section level1">
+<h1>Analysis of longitudinal data (Week 6)</h1>
+<p>In this Analysis exercise, …</p>
+<div id="bprs-data" class="section level2">
+<h2>BPRS data</h2>
+<div id="loading-the-data-4" class="section level3">
+<h3>Loading the data</h3>
+<p>First, I load the BPRS data set and explore its structure and
+dimensions,</p>
+<pre class="r"><code># load libraries
+library(dplyr)
+library(readr)
+
+# load the data
+BPRSL &lt;- read_csv(&quot;data/BPRSL.csv&quot;)</code></pre>
+<pre><code>## Rows: 360 Columns: 5
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr (1): weeks
+## dbl (4): treatment, subject, bprs, week
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code># print out structure and dimenstions
+str(BPRSL)</code></pre>
+<pre><code>## spc_tbl_ [360 × 5] (S3: spec_tbl_df/tbl_df/tbl/data.frame)
+##  $ treatment: num [1:360] 1 1 1 1 1 1 1 1 1 1 ...
+##  $ subject  : num [1:360] 1 2 3 4 5 6 7 8 9 10 ...
+##  $ weeks    : chr [1:360] &quot;week0&quot; &quot;week0&quot; &quot;week0&quot; &quot;week0&quot; ...
+##  $ bprs     : num [1:360] 42 58 54 55 72 48 71 30 41 57 ...
+##  $ week     : num [1:360] 0 0 0 0 0 0 0 0 0 0 ...
+##  - attr(*, &quot;spec&quot;)=
+##   .. cols(
+##   ..   treatment = col_double(),
+##   ..   subject = col_double(),
+##   ..   weeks = col_character(),
+##   ..   bprs = col_double(),
+##   ..   week = col_double()
+##   .. )
+##  - attr(*, &quot;problems&quot;)=&lt;externalptr&gt;</code></pre>
+</div>
+</div>
+<div id="rats-data" class="section level2">
+<h2>RATS data</h2>
+<div id="loading-the-data-5" class="section level3">
+<h3>Loading the data</h3>
+<p>First, I load the RATS data set and explore its structure and
+dimensions,</p>
+<pre class="r"><code># load the data
+RATSL &lt;- read_csv(&quot;data/RATSL.csv&quot;)</code></pre>
+<pre><code>## Rows: 176 Columns: 5
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr (1): WD
+## dbl (4): ID, Group, Weight, Time
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code># print out structure and dimenstions
+str(RATSL)</code></pre>
+<pre><code>## spc_tbl_ [176 × 5] (S3: spec_tbl_df/tbl_df/tbl/data.frame)
+##  $ ID    : num [1:176] 1 2 3 4 5 6 7 8 9 10 ...
+##  $ Group : num [1:176] 1 1 1 1 1 1 1 1 2 2 ...
+##  $ WD    : chr [1:176] &quot;WD1&quot; &quot;WD1&quot; &quot;WD1&quot; &quot;WD1&quot; ...
+##  $ Weight: num [1:176] 240 225 245 260 255 260 275 245 410 405 ...
+##  $ Time  : num [1:176] 1 1 1 1 1 1 1 1 1 1 ...
+##  - attr(*, &quot;spec&quot;)=
+##   .. cols(
+##   ..   ID = col_double(),
+##   ..   Group = col_double(),
+##   ..   WD = col_character(),
+##   ..   Weight = col_double(),
+##   ..   Time = col_double()
+##   .. )
+##  - attr(*, &quot;problems&quot;)=&lt;externalptr&gt;</code></pre>
+</div>
 </div>
 </div>
 

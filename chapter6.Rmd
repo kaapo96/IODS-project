@@ -1,0 +1,41 @@
+# Analysis of longitudinal data (Week 6)
+
+In this Analysis exercise, ...
+
+## BPRS data
+
+### Loading the data
+
+First, I load the BPRS data set and explore its structure and dimensions,
+
+```{r}
+
+# load libraries
+library(dplyr)
+library(readr)
+
+# load the data
+BPRSL <- read_csv("data/BPRSL.csv")
+
+# print out structure and dimenstions
+str(BPRSL)
+
+```
+
+
+
+## RATS data
+
+### Loading the data
+
+First, I load the RATS data set and explore its structure and dimensions,
+
+```{r}
+
+# load the data
+RATSL <- read_csv("data/RATSL.csv")
+
+# print out structure and dimenstions
+str(RATSL)
+
+```
